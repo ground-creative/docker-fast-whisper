@@ -1,0 +1,31 @@
+#!/bin/bash
+
+ARG DOCKER_IMAGE
+
+FROM ${DOCKER_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+	apt-get install -yq apt-utils nano && \
+	apt-get install -yq tzdata && \
+	apt-get install -yq python3 && \
+	apt-get install -yq python3-pip
+
+COPY scripts/sys.run.sh .
+
+RUN chmod +x sys.run.sh
+
+ARG WORK_DIR
+
+WORKDIR ${WORK_DIR}
+
+ARG VOLUME
+
+COPY ${VOLUME}/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENTRYPOINT [ "/bin/sh", "/sys.run.sh" ]
